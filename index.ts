@@ -47,6 +47,25 @@ app.get('/api/shops', async (req, res) => {
       res.status(500).json({ error: "Помилка при отриманні товарів" });
     }
   });
+
+  app.get('/api/products', async (req, res) => {
+    const { shopId, categoryId, sortBy, order } = req.query;
+  
+    try {
+      const products = await prisma.product.findMany({
+        where: {
+          shopId: shopId ? String(shopId) : undefined,
+          ...(categoryId ? { categoryId: Number(categoryId) } : {}),
+        },
+        orderBy: sortBy ? { 
+          [String(sortBy)]: order === 'desc' ? 'desc' : 'asc' 
+        } : undefined,
+      });
+      res.json(products);
+    } catch (error) {
+      res.status(500).json({ error: "Помилка при отриманні товарів" });
+    }
+  });
   
   app.post('/api/orders', async (req, res) => {
     const { userName, email, phone, address, totalPrice, items } = req.body;
