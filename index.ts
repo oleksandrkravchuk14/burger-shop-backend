@@ -1,6 +1,6 @@
 import express from 'express'
 import cors from 'cors'
-import { PrismaClient } from './generated-client/index.js' // Ваш шлях до типів
+import { PrismaClient } from '@prisma/client'
 
 const app = express()
 const prisma = new PrismaClient()

@@ -5,7 +5,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated-client" 
 }
 
 datasource db {
@@ -31,7 +30,7 @@ model Product {
   id          String      @id @default(uuid())
   name        String
   price       Float
-  image       String?     // Посилання на фото страви
+  image       String?    
   shopId      String
   shop        Shop        @relation(fields: [shopId], references: [id])
   categoryId  Int
@@ -57,5 +56,5 @@ model OrderItem {
   productId String
   product   Product @relation(fields: [productId], references: [id])
   quantity  Int
-  priceAtTime Float // Фіксуємо ціну на момент замовлення
+  priceAtTime Float 
 }
