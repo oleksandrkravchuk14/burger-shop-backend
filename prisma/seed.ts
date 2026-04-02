@@ -35,7 +35,7 @@ async function main() {
     },
   })
 
-  console.log('Seed successful! 🌱 Таблиці заповнені.')
+  console.log('Таблиці заповнені.')
 }
 
 main()
