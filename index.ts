@@ -2,54 +2,59 @@ import express from 'express'
 import cors from 'cors'
 import { PrismaClient } from '@prisma/client'
 
-const app = express()
-const prisma = new PrismaClient()
-const PORT = 3001
+const app = express();
+const prisma = new PrismaClient();
+const PORT = process.env.PORT || 3001;
 
-app.use(cors())
-app.use(express.json())
+app.use(cors());
+app.use(express.json());
 
-app.get('/api/products', async (req, res) => {
-
-    const { categoryId, sortBy, order, shopId } = req.query;
+app.get('/api/shops', async (req, res) => {
+    const { minRating, maxRating } = req.query;
+  
+    try {
+      const shops = await prisma.shop.findMany({
+        where: {
+          rating: {
+            gte: minRating ? parseFloat(String(minRating)) : 0,
+            lte: maxRating ? parseFloat(String(maxRating)) : 5,
+          },
+        },
+        include: {
+          products: true,
+        },
+      });
+      res.json(shops);
+    } catch (error) {
+      res.status(500).json({ error: "Помилка при отриманні магазинів" });
+    }
+  });
+  
+  app.get('/api/products', async (req, res) => {
+    const { categoryId, sortBy, order } = req.query;
   
     try {
       const products = await prisma.product.findMany({
         where: {
-          ...(shopId ? { shopId: String(shopId) } : {}),
-          
           ...(categoryId ? { categoryId: Number(categoryId) } : {}),
         },
         orderBy: sortBy ? { 
           [String(sortBy)]: order === 'desc' ? 'desc' : 'asc' 
         } : undefined,
-        include: {
-          category: true, 
-        }
       });
-  
       res.json(products);
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: "Помилка сервера при отриманні товарів" });
+      res.status(500).json({ error: "Помилка при отриманні товарів" });
     }
   });
-
-app.listen(PORT, () => {
-  console.log(`🚀Сервер запущено на http://localhost:${PORT}`)
-})
-
-app.post('/api/orders', async (req, res) => {
-    const { userName, email, phone, address, items, totalPrice } = req.body;
+  
+  app.post('/api/orders', async (req, res) => {
+    const { userName, email, phone, address, totalPrice, items } = req.body;
   
     try {
-      const newOrder = await prisma.order.create({
+      const order = await prisma.order.create({
         data: {
-          userName,
-          email,
-          phone,
-          address,
-          totalPrice,
+          userName, email, phone, address, totalPrice,
           items: {
             create: items.map((item: any) => ({
               productId: item.productId,
@@ -59,8 +64,13 @@ app.post('/api/orders', async (req, res) => {
           },
         },
       });
-      res.json(newOrder);
+      res.json(order);
     } catch (error) {
-      res.status(500).json({ error: "Не вдалося зберегти замовлення" });
+      console.error(error);
+      res.status(500).json({ error: "Не вдалося створити замовлення" });
     }
+  });
+
+  app.listen(PORT, () => {
+    console.log(`🚀Сервер запущено на http://localhost:${PORT}`)
   });

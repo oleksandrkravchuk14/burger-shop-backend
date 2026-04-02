@@ -27,5 +27,5 @@
     "experimentalSpecifierResolution": "node"
   },
   "include": ["**/*.ts"],
-  "exclude": ["node_modules", "generated-client"]
+  "exclude": ["node_modules", "generated-client", "dist"]
 }
