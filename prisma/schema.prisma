@@ -14,10 +14,24 @@ datasource db {
 }
 
 model Shop {
-  id       String    @id @default(uuid())
-  name     String
-  rating   Float
-  products Product[]
+  id        String    @id @default(uuid())
+  name      String
+  rating    Float
+  createdAt DateTime  @default(now()) 
+  products  Product[]
+}
+
+model Product {
+  id          String      @id @default(uuid())
+  name        String
+  price       Float
+  image       String?
+  shopId      String
+  categoryId  Int
+  createdAt   DateTime    @default(now()) 
+  shop        Shop        @relation(fields: [shopId], references: [id])
+  category    Category    @relation(fields: [categoryId], references: [id])
+  orderItems  OrderItem[]
 }
 
 model Category {
@@ -26,35 +40,24 @@ model Category {
   products Product[]
 }
 
-model Product {
-  id          String      @id @default(uuid())
-  name        String
-  price       Float
-  image       String?    
-  shopId      String
-  shop        Shop        @relation(fields: [shopId], references: [id])
-  categoryId  Int
-  category    Category    @relation(fields: [categoryId], references: [id])
-  orderItems  OrderItem[]
-}
-
 model Order {
   id         String      @id @default(uuid())
-  userName   String
+  name       String
   email      String
   phone      String
   address    String
   totalPrice Float
   createdAt  DateTime    @default(now())
-  items      OrderItem[]
+  items      OrderItem[] 
 }
 
 model OrderItem {
-  id        Int     @id @default(autoincrement())
+  id        String  @id @default(uuid())
   orderId   String
-  order     Order   @relation(fields: [orderId], references: [id])
   productId String
-  product   Product @relation(fields: [productId], references: [id])
   quantity  Int
-  priceAtTime Float 
+  price     Float
+  order     Order   @relation(fields: [orderId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
 }
+
